@@ -3,13 +3,12 @@
 
 let opStack = []; // стек операций (Техас)
 let resStack = []; // результирующий стек (Калифорния)
-let final = '';
 
 function expressionCalculator(expr) {
-    let openBr = (expr.match(/\(/g) || []).length;
-    let closeBr = (expr.match(/\)/g) || []).length;
-    
-    if (openBr != closeBr) {
+    console.log(expr);
+    let openBr = (expr.match(/\(/) || []).length;
+    let closeBr = (expr.match(/\)/) || []).length;
+    if (openBr != closeBr){
         throw Error('ExpressionError: Brackets must be paired');
     }
 
@@ -19,7 +18,9 @@ function expressionCalculator(expr) {
 
     pushLeastOpsToRes();
 
-    final = getResult();
+    console.log('ResStack после пуша остатка: ' + resStack);
+
+    let final = getResult();
     return final;
 }
 
@@ -77,13 +78,17 @@ function processEl(el) {
     }
 }
 
-function isNumber(value) { // проверить, что переданное значение - число
+
+// проверить, что переданное значение - число
+function isNumber(value) {
     return !isNaN(parseFloat(value)) && isFinite(value);
 }
 
-function parseStrToArr(expr) { // распарсить строку с выражением в массив с числами и операциями
+// распарсить строку с выражением в массив с числами и операциями
+function parseStrToArr(expr) {
     let resArr = [];
     expr = expr.replace(/\s/g, ''); // удалить все пробелы
+    // let regexp = /(\d+|\+|\-|\/|\*|\(|\))/g; // регулярное выражение для парсинга
     let regexp = /(\d+|\+|\-|\/|\*|\(|\))/g; // регулярное выражение для парсинга
     let matchAll = expr.matchAll(regexp);   // распарсить строку на символы/операции, возвращает итерируемый объект
     Array.from(matchAll).forEach(el => {
@@ -93,11 +98,13 @@ function parseStrToArr(expr) { // распарсить строку с выра�
     return resArr;
 }
 
-function stackIsEmpty(stackArr) { // проверяет, что стек пустой
+// проверяет, что стек пустой
+function stackIsEmpty(stackArr) {
     return stackArr.length === 0;
 }
 
-function getStackTop(stackArr) { // получить верхний элемент стека
+// получить верхний элемент стека
+function getStackTop(stackArr) {
     return stackArr[stackArr.length - 1];
 }
 
@@ -110,8 +117,10 @@ function pushLeastOpsToRes() { // вытолкнуть все оставшиес
 function getResult() { // посчитать итоговый результат
     let res = [];
     resStack.reverse();
+    console.log('Стек перед подсчетом результата: ' + resStack);
     while (!stackIsEmpty(resStack)) {
         let newEl = resStack.pop();
+        console.log(newEl);
 
         if (['+', '-', '*', '/'].includes(newEl)) {
             let firstNum = res.pop();
@@ -129,7 +138,6 @@ function getResult() { // посчитать итоговый результат
                     break;
                 case '/':
                     if (firstNum == 0) {
-                        resStack = []; // обнулить результаты
                         throw Error("TypeError: Division by zero.");
                     }
                     resOperation = secondNum / firstNum;
@@ -139,10 +147,28 @@ function getResult() { // посчитать итоговый результат
         } else {
             res.push(newEl);
         }
+        console.log(res);
     }
-    return res[0];
+    if (res.length == 1) {
+        return res[0];
+    } else {
+        console.log('End')
+        throw Error('ExpressionError: Brackets must be paired');
+    }
+
 }
 
-module.exports = {
-    expressionCalculator
-}
+// const expr = " 84 + 62 / 33 * 10 + 15 ";
+// const result = 117.7879;
+
+// console.log(expressionCalculator('1 / 0')); // ?
+console.log(expressionCalculator('((1 + 2) * 3'))
+// console.log('ИТОГ: ' + expressionCalculator(' 84 + 62 / 33 * 10 + 15 ')); // верный
+// console.log('ИТОГ: ' + expressionCalculator('(8+2*5)/(1+3*2-4)')); // верный
+// console.log(expressionCalculator(' 100 - 60 / 38 + (  19 / 88 * 97 / 82 / 94  ) * 92 '));
+// console.log(expressionCalculator(' 12 * 3 - 18 + 34 - 84 ')); // верный
+// console.log(expressionCalculator(' 20 - 57 * 12 - (  58 + 84 * 32 / 27  )'));
+// console.log(expressionCalculator('20 - 57 * 12 - 157 ')); // -821
+// console.log('Итог: ' + expressionCalculator('5*2+10'));
+// console.log('Итог: ' + expressionCalculator('(6+10-4)/(1+1*2)+1'));
+// console.log(expressionCalculator(' (  96 / 83 - 53 - (  59 - 91 / 91 - 54  )  ) / (  75 + 4 / (  50 - 80 * 45 + 93 + 18  ) - 76 / 54  ) * 14 + 59 '))
